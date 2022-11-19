@@ -102,6 +102,131 @@ def reg_res():
 def login():
     return render_template('login.html')
 
+
+@app.route("/log_res", methods=['POST', 'GET'])
+def log_res():
+    if request.method == 'GET':
+        msg = "Invalid Credentials!!"
+        return render_template("result.html", msg=msg)
+
+    if request.method == 'POST':
+        try:
+            email = request.form['email']
+            password = request.form['password']
+            #cursor = mysql.connection.cursor()
+            #sql = "SELECT * FROM USER WHERE EMAIL=%s AND PASSWORD=%s",(email, password)
+            # cursor.execute(sql)
+            #data = cursor.fetchone()
+            #dbemail = data[1]
+            #dbpassword = data[2]
+            sql = "SELECT * FROM USER WHERE EMAIL=?"
+            stmt = ibm_db.prepare(conn, sql)
+            ibm_db.bind_param(stmt, 1, email)
+            ibm_db.execute(stmt)
+            user = ibm_db.fetch_tuple(stmt)
+
+            # if password == dbpassword:
+            if user[2] == password:
+                session['status'] = "ok"
+                return render_template("home.html")
+                # return redirect("http://127.0.0.1/home")
+            else:
+                msg = "Invalid Credentials!!"
+                return render_template("result.html", msg=msg)
+
+        except TypeError as e:
+            msg = "Invalid Credentials!!"
+            return render_template("result.html", msg=msg)
+
+
+@app.route('/logout')
+def logout():
+    if 'status' in session:
+        session.pop('status', None)
+        msg = "logout successful!!"
+        return render_template("result.html", msg=msg)
+    else:
+        msg = "User already logged out!!"
+        return render_template("result.html", msg=msg)
+
+
+@app.route('/home')
+def getVariable():
+    if 'status' in session:
+        return render_template('home.html')
+    else:
+        msg = "Please Login!!"
+        return render_template("result.html", msg=msg)
+
+
+# countries
+"""@app.route('/india')
+def india():   
+   news_articles = country("in")
+   return render_template("news.html", news_articles=news_articles)"""
+
+# category
+
+
+@app.route('/entertainment')
+def entertainment():
+    if 'status' in session:
+        news_articles = category("in", "entertainment")
+        return render_template("news.html", news_articles=news_articles, cat="Entertainment")
+    else:
+        msg = "Please Login!!"
+        return render_template("result.html", msg=msg)
+
+
+@app.route('/sports')
+def sports():
+    if 'status' in session:
+        news_articles = category("in", "sports")
+        return render_template("news.html", news_articles=news_articles, cat="Sports")
+    else:
+        msg = "Please Login!!"
+        return render_template("result.html", msg=msg)
+
+
+@app.route('/technology')
+def technology():
+    if 'status' in session:
+        news_articles = category("in", "technology")
+        return render_template("news.html", news_articles=news_articles, cat="Technology")
+    else:
+        msg = "Please Login!!"
+        return render_template("result.html", msg=msg)
+
+
+@app.route('/science')
+def science():
+    if 'status' in session:
+        news_articles = category("in", "science")
+        return render_template("news.html", news_articles=news_articles, cat="Science")
+    else:
+        msg = "Please Login!!"
+        return render_template("result.html", msg=msg)
+
+
+@app.route('/health')
+def health():
+    if 'status' in session:
+        news_articles = category("in", "health")
+        return render_template("news.html", news_articles=news_articles, cat="Health")
+    else:
+        msg = "Please Login!!"
+        return render_template("result.html", msg=msg)
+
+
+@app.route('/business')
+def business():
+    if 'status' in session:
+        news_articles = category("in", "business")
+        return render_template("news.html", news_articles=news_articles, cat="Business")
+    else:
+        msg = "Please Login!!"
+        return render_template("result.html", msg=msg)
+
 # search
 
 
