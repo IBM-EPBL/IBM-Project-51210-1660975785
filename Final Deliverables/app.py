@@ -244,3 +244,6 @@ def search():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+# docker build -t docker_flask .
