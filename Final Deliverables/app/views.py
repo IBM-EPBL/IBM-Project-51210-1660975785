@@ -2,6 +2,7 @@ from app import app
 from flask import render_template, redirect
 from flask import url_for
 from flask import request
+from flask import flash, session
 from .request import businessArticles, entArticles, get_news_source, healthArticles, publishedArticles, randomArticles, scienceArticles, sportArticles, techArticles, topHeadlines
 import ibm_db
 import re
@@ -9,7 +10,8 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
 app.secret_key = 'a'
-conn = ibm_db.connect("DATABASE=bludb;HOSTNAME=19af6446-6171-4641-8aba-9dcff8e1b6ff.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud;PORT=30699;SECURITY=SSL;SSLServerCertificate=DigiCertGlobalRootCA.crt;UID=vdw12720;PWD=2C3yBJCDvrFURLPQ",'','')
+# conn = ibm_db.connect("DATABASE=bludb;HOSTNAME=19af6446-6171-4641-8aba-9dcff8e1b6ff.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud;PORT=30699;SECURITY=SSL;SSLServerCertificate=DigiCertGlobalRootCA.crt;UID=vdw12720;PWD=2C3yBJCDvrFURLPQ", '', '')
+conn = ibm_db.connect("DATABASE=bludb;HOSTNAME=b1bc1829-6f45-4cd4-bef4-10cf081900bf.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud;PORT=32304;SECURITY=SSL;SSLServerCertificate=DigiCertGlobalRootCA.crt;UID=ckw77166;PWD=qfLnWyfO7M7ZhnFb", '', '')
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -25,7 +27,7 @@ def login():
         account = ibm_db.fetch_assoc(stmt)
         print(account)
         if account:
-            # email id exists 
+            # email id exists
             # checking if the password is correct
             if not account['PASSWORD'] == password:
                 flash('Invalid password', category='error')
@@ -39,11 +41,12 @@ def login():
         else:
             # email id does not exist in the database
             flash('Email invalid... Try Again', category='error')
-            
+
         return render_template('auth/login.html')
-    
+
     return render_template('auth/login.html')
     # return render_template('login.html')
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -55,7 +58,7 @@ def register():
         sql_check_query = "SELECT * FROM user WHERE email = ?"
         stmt = ibm_db.prepare(conn, sql_check_query)
         ibm_db.bind_param(stmt, 1, email)
-        ibm_db.execute(stmt) 
+        ibm_db.execute(stmt)
 
         account = ibm_db.fetch_assoc(stmt)
         # email id does not exist in the database
@@ -85,59 +88,67 @@ def register():
 def home():
     articles = publishedArticles()
 
-    return  render_template('home.html', articles = articles)
+    return render_template('home.html', articles=articles)
+
 
 @app.route('/headlines')
 def headlines():
     headlines = topHeadlines()
 
-    return  render_template('headlines.html', headlines = headlines)
+    return render_template('headlines.html', headlines=headlines)
+
 
 @app.route('/articles')
 def articles():
     random = randomArticles()
 
-    return  render_template('articles.html', random = random)
+    return render_template('articles.html', random=random)
+
 
 @app.route('/sources')
 def sources():
     newsSource = get_news_source()
 
-    return  render_template('sources.html', newsSource = newsSource)
+    return render_template('sources.html', newsSource=newsSource)
+
 
 @app.route('/category/business')
 def business():
     sources = businessArticles()
 
-    return  render_template('business.html', sources = sources)
+    return render_template('business.html', sources=sources)
+
 
 @app.route('/category/tech')
 def tech():
     sources = techArticles()
 
-    return  render_template('tech.html', sources = sources)
+    return render_template('tech.html', sources=sources)
+
 
 @app.route('/category/entertainment')
 def entertainment():
     sources = entArticles()
 
-    return  render_template('entertainment.html', sources = sources)
+    return render_template('entertainment.html', sources=sources)
+
 
 @app.route('/category/science')
 def science():
     sources = scienceArticles()
 
-    return  render_template('science.html', sources = sources)
+    return render_template('science.html', sources=sources)
+
 
 @app.route('/category/sports')
 def sports():
     sources = sportArticles()
 
-    return  render_template('sport.html', sources = sources)
+    return render_template('sport.html', sources=sources)
+
 
 @app.route('/category/health')
 def health():
     sources = healthArticles()
 
-    return  render_template('health.html', sources = sources)
-
+    return render_template('health.html', sources=sources)
